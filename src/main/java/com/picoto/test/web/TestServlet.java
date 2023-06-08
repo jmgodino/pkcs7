@@ -1,17 +1,19 @@
 package com.picoto.test.web;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.util.List;
 
-import javax.naming.InitialContext;
+import com.picoto.jdbc.wrapper.JdbcNamedWrapper;
+import com.picoto.jdbc.wrapper.JdbcWrapperFactory;
+import com.picoto.test.domain.TestDomain;
+import com.picoto.test.exceptions.TestException;
+import com.picoto.test.util.DbUtils;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
 
 
 
@@ -28,21 +30,36 @@ public class TestServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
-			InitialContext cxt = new InitialContext();
-			DataSource ds = (DataSource) cxt.lookup( "java:/comp/env/jdbc/test" );
-			Connection con = ds.getConnection();
-			PreparedStatement ps = con.prepareStatement("select id, descripcion from test");
-			ResultSet rs = ps.executeQuery();
-			while (rs.next()) {
-				resp.getWriter().println(rs.getInt(1)+" "+rs.getString(2));
+
+			JdbcNamedWrapper<TestDomain> testWrap = JdbcWrapperFactory.getJdbcNamedWrapper(TestDomain.class, DbUtils.getConnection("testdb"), false,
+					true);
+
+			List<TestDomain> tests = testWrap.query(
+					"select id, descripcion from test",  c -> {
+						TestDomain t = new TestDomain();
+						t.setId(c.getInt(1));
+						t.setDescripcion(c.getString(2));
+						return t;
+					});
+
+			testWrap.debug("* Libros recuperados por ISBN y título");
+			for (TestDomain t : tests) {
+				debug(resp, t.toString());
 			}
-			rs.close();
-			ps.close();
-			con.close();
+			
 
 		} catch (Exception e) {
-			resp.getWriter().println(e.toString());
+			debug (resp, e.getMessage());
 		}
+	}
+
+	private void debug(HttpServletResponse resp, String str) {
+		try {
+			resp.getWriter().println(str);
+		} catch (Exception e) {
+			throw new TestException(String.format("Error al conectar al escribir la respuesta %s",e.getMessage()));
+		}
+		
 	}
 	
 }
