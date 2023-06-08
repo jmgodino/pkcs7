@@ -21,6 +21,6 @@ public class TestJUnit {
 	public void testQuery() {
 		assertNotNull(testMock);
 		when(testMock.getId()).thenReturn(1);
-		assertEquals(testMock.getId(), 1);
+		assertEquals(1, testMock.getId());
 	}
 }
