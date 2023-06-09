@@ -1,11 +1,14 @@
 package com.picoto.unit.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -17,6 +20,8 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.picoto.jdbc.wrapper.JdbcNamedWrapper;
+import com.picoto.jdbc.wrapper.JdbcWrapperFactory;
 import com.picoto.test.domain.TestDomain;
 import com.picoto.test.util.DbUtils;
 
@@ -56,5 +61,15 @@ public class TestJUnit {
 		assertNotNull(testMock);
 		when(testMock.getId()).thenReturn(1);
 		assertEquals(1, testMock.getId());
+	}
+	
+	
+	@Test
+	public void testQueryHsql() throws SQLException {
+		Connection con = DriverManager.getConnection("jdbc:h2:mem:testdb;INIT=RUNSCRIPT FROM 'classpath:test.sql'","sa","");
+		JdbcNamedWrapper<TestDomain> testWrap = JdbcWrapperFactory.getJdbcNamedWrapper(TestDomain.class, con, false,
+				true);
+		assertTrue(testWrap.count("select count(*) from test") == 2);
+		
 	}
 }
