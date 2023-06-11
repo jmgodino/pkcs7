@@ -1,8 +1,6 @@
 package com.picoto.unit.test;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
@@ -11,7 +9,7 @@ import com.picoto.test.util.Pkcs7Utils;
 
 public class TestPkcs7 {
 
-	static final String PATH = "/home/jmgodino/pkcs7";
+	static final String PATH = "";
 	
 	@Test
 	void testSignatureDetachedDer() throws Exception {
@@ -41,39 +39,36 @@ public class TestPkcs7 {
 		Pkcs7Utils.validateSignedData(signedMsg, Pkcs7Utils.Tipo.DETACHED, Pkcs7Utils.Formato.DER, msg.getBytes());
 	}
 
-	private byte[] getCertificado() throws IOException {
-		return readFile(PATH+"/paucel.crt");
-	}
-
 	private byte[] getDatosFirmadosDetachedDer() throws IOException {
-		return readFile(PATH+"/texto_cms.pkcs7");
+		return readFile(PATH+"msgs/texto_cms.pkcs7");
 	}
 
 	private byte[] getDatosFirmadosAttachedDer() throws IOException {
-		return readFile(PATH+"/texto_smime.pkcs7");
+		return readFile(PATH+"msgs/texto_smime.pkcs7");
 	}
 
 	private byte[] getDatosFirmadosDetachedPem() throws IOException {
-		return readFile(PATH+"/texto_cms_pem.pkcs7");
+		return readFile(PATH+"msgs/texto_cms_pem.pkcs7");
 	}
 
 	private byte[] getDatosFirmadosAttachedPem() throws IOException {
-		return readFile(PATH+"/texto_smime_pem.pkcs7");
+		return readFile(PATH+"msgs/texto_smime_pem.pkcs7");
 	}
 
 	private byte[] getMensaje() throws IOException {
-		return readFile(PATH+"/texto.txt");
+		return readFile(PATH+"msgs/texto.txt");
 	}
 
 	private byte[] getPrivateKey() throws IOException {
-		return readFile(PATH+"/paucel.key");
+		return readFile(PATH+"user/paucel.key");
 	}
 	
+	private byte[] getCertificado() throws IOException {
+		return readFile(PATH+"user/paucel.crt");
+	}	
+	
 	private byte[] readFile(String name) throws IOException {
-		InputStream is = new FileInputStream(name);
-		byte[] data = IOUtils.toByteArray(is);
-		is.close();
-		return data;
+		return IOUtils.resourceToByteArray(name, TestPkcs7.class.getClassLoader());
 	}
 	
 }
