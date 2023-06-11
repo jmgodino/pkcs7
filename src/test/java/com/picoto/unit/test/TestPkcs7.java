@@ -32,13 +32,20 @@ public class TestPkcs7 {
 	}
 
 	@Test
-	void testSign() throws Exception {
+	void testSignDetached() throws Exception {
 		String msg = "Hola mundo";
-		byte[] signedMsg = Pkcs7Utils.signData(msg.getBytes(), getCertificado(), getPrivateKey(), "picoto");
-		Pkcs7Utils.validateSignedData(signedMsg, Pkcs7Utils.Tipo.ATTACHED, Pkcs7Utils.Formato.DER, null);
+		byte[] signedMsg = Pkcs7Utils.signData(msg.getBytes(), getCertificado(), getPrivateKey(), "picoto", Pkcs7Utils.Tipo.DETACHED);
 		Pkcs7Utils.validateSignedData(signedMsg, Pkcs7Utils.Tipo.DETACHED, Pkcs7Utils.Formato.DER, msg.getBytes());
 	}
 
+	@Test
+	void testSignAttached() throws Exception {
+		String msg = "Adios mundo";
+		byte[] signedMsg = Pkcs7Utils.signData(msg.getBytes(), getCertificado(), getPrivateKey(), "picoto", Pkcs7Utils.Tipo.ATTACHED);
+		Pkcs7Utils.validateSignedData(signedMsg, Pkcs7Utils.Tipo.ATTACHED, Pkcs7Utils.Formato.DER, null);
+	}
+
+	
 	private byte[] getDatosFirmadosDetachedDer() throws IOException {
 		return readFile(PATH+"msgs/texto_cms.pkcs7");
 	}

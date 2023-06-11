@@ -45,7 +45,7 @@ public class Pkcs7Utils {
 		ATTACHED, DETACHED
 	};
 
-	public static byte[] signData(byte[] data, byte[] signingCertificateData, byte[] signingKeyData, String passwd)
+	public static byte[] signData(byte[] data, byte[] signingCertificateData, byte[] signingKeyData, String passwd, Tipo tipo)
 			throws Exception {
 
 		byte[] signedMessage = null;
@@ -63,7 +63,8 @@ public class Pkcs7Utils {
 						.build(contentSigner, signingCertificate));
 		cmsGenerator.addCertificates(certs);
 
-		CMSSignedData cms = cmsGenerator.generate(cmsData, true);
+		boolean attach = tipo == Tipo.ATTACHED;
+		CMSSignedData cms = cmsGenerator.generate(cmsData, attach);
 		signedMessage = cms.getEncoded();
 		return signedMessage;
 	}
